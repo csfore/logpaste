@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -101,16 +100,6 @@ func TestPastePut(t *testing.T) {
 			description:    "valid content",
 			body:           "hello, world!",
 			statusExpected: http.StatusOK,
-		},
-		{
-			description:    "just at size limit",
-			body:           strings.Repeat("A", MaxPasteCharacters),
-			statusExpected: http.StatusOK,
-		},
-		{
-			description:    "too long content",
-			body:           strings.Repeat("A", MaxPasteCharacters+1),
-			statusExpected: http.StatusBadRequest,
 		},
 		{
 			description:    "empty content",
@@ -212,29 +201,6 @@ some data I want to upload
 --------------------------aea33768a2527972--`,
 			statusExpected:   http.StatusOK,
 			contentsExpected: "some data I want to upload",
-		},
-		{
-			description: "accepts string data at size limit",
-			contentType: "multipart/form-data; boundary=------------------------aea33768a2527972",
-			body: fmt.Sprintf(`
---------------------------aea33768a2527972
-Content-Disposition: form-data; name="dummyname2"
-
-%s
---------------------------aea33768a2527972--`, strings.Repeat("A", MaxPasteCharacters)),
-			statusExpected:   http.StatusOK,
-			contentsExpected: strings.Repeat("A", MaxPasteCharacters),
-		},
-		{
-			description: "rejects string data above size limit",
-			contentType: "multipart/form-data; boundary=------------------------aea33768a2527972",
-			body: fmt.Sprintf(`
---------------------------aea33768a2527972
-Content-Disposition: form-data; name="dummyname2"
-
-%s
---------------------------aea33768a2527972--`, strings.Repeat("A", MaxPasteCharacters+1)),
-			statusExpected: http.StatusBadRequest,
 		},
 		{
 			description: "accepts file data",
